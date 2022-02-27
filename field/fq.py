@@ -3,13 +3,19 @@ from field.utils import mod_inverse
 class Fq:
 
     field_modulus = None 
+    val = None
 
     def __init__(self, val):
         # Check if field_modulus is set or not
         if not self.field_modulus:
-            raise Exception("field_modulus is not set")
+            raise AttributeError("Field Modulus hasn't been specified")
 
-        self.val = val % self.field_modulus
+        if isinstance(val, Fq):
+            self.val = val.val
+        elif isinstance(val, int):
+            self.val = val % self.field_modulus
+        else:
+            raise TypeError("Expected an int or FQ object, but got object of type {}".format(type(val)))
 
     @classmethod
     def zero(cls):
@@ -19,43 +25,63 @@ class Fq:
     def one(cls):
         return cls(1)
 
-    def add(self, other):
-        assert(isinstance(other, Fq))
-        self.val = (self.val + other.val) % self.field_modulus
+    def __add__(self, other):
+        on = other.val if isinstance(other, Fq) else Fq(other)
+        return Fq((self.val + on) % self.field_modulus)
 
-    def double(self):
-        self.val = (self.val + self.val) % self.field_modulus
+    def __radd__(self, other):
+        return self + other
 
-    def sub(self, other):
-        assert(isinstance(other, Fq))
-        self.val = (self.val - other.val) % self.field_modulus
+    def __mul__(self, other):
+        on = other.val if isinstance(other, Fq) else Fq(other)
+        return Fq((self.val * on) % self.field_modulus)
 
-    def mul(self, other):
-        assert(isinstance(other, Fq))
-        self.val = (self.val * other.val) % self.field_modulus
+    def __rmul__(self, other):
+        return self * other
 
-    def mul_scalar(self, e):
-        self.mul(Fq(e))
+    def __sub__(self, other):
+        on = other.val if isinstance(other, Fq) else Fq(other)
+        return  Fq((self.val - on) % self.field_modulus)
 
-    def neg(self):
-        self.mul_scalar(-1)
+    def __rsub__(self, other):
+        on = other.val if isinstance(other, Fq) else Fq(other)
+        return  Fq((on - self.val) % self.field_modulus)
 
-    def inverse(self):
-        self.val = mod_inverse(self.val, self.field_modulus)
+    def __div__(self, other):
+        on = other.val if isinstance(other, Fq) else Fq(other)
+        return Fq((self.val * mod_inverse(on, self.field_modulus)) % self.field_modulus)
 
-    def div(self, other):
-        assert(isinstance(other, Fq))
-        copy = other
-        copy.inverse()
-        assert(isinstance(copy, Fq))
-        self.mul(copy)
+    def __truediv__(self, other):
+        return self.__div__(other)
 
-    def exp(self, exponent):
-        pow(self.val, exponent, self.field_modulus)
+    def __rdiv__(self, other):
+        on = other.val if isinstance(other, Fq) else Fq(other)
+        return Fq((mod_inverse(self.val, self.field_modulus) * on) % self.field_modulus)
 
-    def square(self):
-        self.mul(self)
+    def __rtruediv__(self, other):
+        return self.__rdiv__(other)
 
-    def eq(self, other):
-        assert(isinstance(other, Fq))
-        return (self.val == other.val)
+    def __pow__(self, other):
+        if other == 0:
+            return Fq.one()
+        elif other == 1:
+            return Fq(self.val)
+        elif other % 2 == 0:
+            return (self * self) ** (other // 2)
+        else:
+            return ((self * self) ** int(other // 2)) * self
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __neg__(self):
+        return Fq(-self.val)
+
+    def __repr__(self):
+        return repr(self.val)
+
+    def __eq__(self, other):
+        if isinstance(other, Fq):
+            return self.val == other.val
+        else:
+            return self.val == other
