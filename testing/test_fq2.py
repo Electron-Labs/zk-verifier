@@ -46,31 +46,31 @@ def test_fq2_one():
 
 
 def test_fq2_add():
-    Fq.field_modulus = 17
-    Fq2.non_residue = Fq(16)
-    a = Fq2([Fq(9), Fq(7)])
-    b = Fq2([Fq(14), Fq(15)])
-    res = Fq2([Fq(6), Fq(5)])
+    Fq.field_modulus = 7
+    Fq2.non_residue = Fq(-1)
+    a = Fq2([Fq(4), Fq(4)])
+    b = Fq2([Fq(3), Fq(4)])
+    res = Fq2([Fq(0), Fq(1)])
     c = a + b
     assert(c == res)
 
 
 def test_fq2_sub():
-    Fq.field_modulus = 17
-    Fq2.non_residue = Fq(16)
-    a = Fq2([Fq(9), Fq(7)])
-    b = Fq2([Fq(14), Fq(15)])
-    res = Fq2([Fq(12), Fq(9)])
+    Fq.field_modulus = 7
+    Fq2.non_residue = Fq(-1)
+    a = Fq2([Fq(5), Fq(3)])
+    b = Fq2([Fq(7), Fq(2)])
+    res = Fq2([Fq(5), Fq(1)])
     c = a - b
     assert(c == res)
 
 
 def test_fq2_mul():
-    Fq.field_modulus = 17
-    Fq2.non_residue = Fq(16)
-    a = Fq2([Fq(9), Fq(7)])
-    b = Fq2([Fq(14), Fq(15)])
-    res = Fq2([Fq(4), Fq(3)])
+    Fq.field_modulus = 7
+    Fq2.non_residue = Fq(-1)
+    a = Fq2([Fq(4), Fq(4)])
+    b = Fq2([Fq(3), Fq(4)])
+    res = Fq2([Fq(3), Fq(0)])
     c = a * b
     assert(c == res)
 
@@ -83,11 +83,22 @@ def test_fq2_neg():
     assert(a == res)
 
 
+def test_fq2_square():
+    Fq.field_modulus = 7
+    Fq2.non_residue = Fq(-1)
+
+    a = Fq2([Fq(4), Fq(4)])
+    b = a.square()
+    c = a * a
+    assert(b == c)
+
 def test_fq2_inverse():
-    Fq.field_modulus = 17
-    Fq2.non_residue = Fq(16)
-    a = Fq2([Fq(9), Fq(7)])
+    Fq.field_modulus = 7
+    Fq2.non_residue = Fq(-1)
+    a = Fq2([Fq(4), Fq(4)])
+    c = Fq2([Fq(1), Fq(6)])
     b = a.inverse()
+    assert(b == c)
     # Verify basic property of inverse a*a^-1 = 1 mod p
     c = a * b
     res = Fq2.one()

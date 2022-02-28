@@ -11,7 +11,10 @@ class Fq2:
         assert(isinstance(self.non_residue, Fq))
         assert(isinstance(val, list))
 
-        self.val = val
+        if isinstance(val, Fq2):
+            self.val = val
+        else:
+            self.val = [Fq(v) for v in val]
 
         assert(len(self.val) == self.degree)
 
@@ -41,18 +44,36 @@ class Fq2:
     def __mul__(self, other):
         # Multiplication and Squaring on Pairing-Friendly.pdf; Section 3 (Karatsuba)
         # https://pdfs.semanticscholar.org/3e01/de88d7428076b2547b60072088507d881bf1.pdf
+
+        a0 = self.val[0]
+        a1 = self.val[1]
+        b0 = other.val[0]
+        b1 = other.val[1]
+
         v0 = self.val[0] * other.val[0]
         v1 = self.val[1] * other.val[1]
 
-        return self.__class__(
-            [(v0 + v1 * self.non_residue),
-             (((self.val[0] + other.val[0]) * (self.val[1] + other.val[1])) - (v0 + v1))])
+        val1 = v0 + v1 * self.non_residue
+        val2 = (a0 + a1) * (b0 + b1) - (v0 + v1)
+
+        return self.__class__([val1, val2])
 
     def __rmul__(self, other):
         return self * other
 
     def __neg__(self):
         return type(self)([-c for c in self.val])
+
+    def square(self):
+        a0 = self.val[0]
+        a1 = self.val[1]
+
+        ab = a0 * a1
+
+        return self.__class__([
+            ((a0 + a1) * (a0 + self.non_residue * a1)) - (ab + self.non_residue * ab),
+            ab + ab,
+        ])
 
     def inverse(self):
         # High-Speed Software Implementation of the Optimal Ate Pairing over Barreto–Naehrig Curves .pdf
