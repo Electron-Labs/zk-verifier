@@ -85,3 +85,12 @@ class Fq:
             return self.val == other.val
         else:
             return self.val == other
+
+    def bit_length(self):
+        return self.val.bit_length()
+
+    def bit(self, i):
+        if self.val & (1 << i):
+            return True
+        else:
+            return False
