@@ -9,7 +9,6 @@ class Fq2:
             raise AttributeError("Quadratic non-residue hasn't been specified")
 
         assert(isinstance(self.non_residue, Fq))
-        assert(isinstance(val, list))
 
         if isinstance(val, Fq2):
             self.val = val

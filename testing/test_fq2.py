@@ -1,16 +1,11 @@
 import pytest
-from field.fq2 import Fq2, Fq
+from field.fq2 import Fq2
+from field.fq import Fq
 
 
 def test_fq2_without_non_residue():
+    Fq2.non_residue = None
     with pytest.raises(AttributeError):
-        a = Fq2(2)
-
-
-def test_fq2_without_list():
-    Fq.field_modulus = 17
-    Fq2.non_residue = Fq(16)
-    with pytest.raises(AssertionError):
         a = Fq2(2)
 
 
