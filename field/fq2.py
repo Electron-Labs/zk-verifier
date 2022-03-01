@@ -86,6 +86,9 @@ class Fq2:
     def __div__(self, other):
         return self * other.inverse()
 
+    def __truediv__(self, other):
+        return self.__div__(other)
+
     def __repr__(self):
         return repr(self.val)
 

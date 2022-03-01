@@ -1,4 +1,3 @@
-from black import E
 from field.fq import Fq
 from field.fq2 import Fq2
 
