@@ -159,4 +159,4 @@ class G1:
         zinv3 = zinv2 * zinv
         y = self.val[1] * zinv3
 
-        return Fq2([x, y])
+        return G1([x, y])
