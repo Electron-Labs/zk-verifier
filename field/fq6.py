@@ -4,6 +4,8 @@ from field.fq2 import Fq2
 class Fq6:
     non_residue = None
     degree = 6
+    frobenius_coeffs_c1 = None
+    frobenius_coeffs_c2 = None
 
     def __init__(self, val):
         if not self.non_residue:
@@ -63,6 +65,13 @@ class Fq6:
     def __rmul__(self, other):
         return self * other
 
+    def mul_by_fq2(self, fq2):
+        return self.__class__([
+            fq2 * self.val[0],
+            fq2 * self.val[1],
+            fq2 * self.val[2],
+        ])
+
     def mul_scalar(self, base):
         res = Fq6.zero()
         rem = Fq(base)
@@ -110,3 +119,10 @@ class Fq6:
 
     def __repr__(self):
         return repr(self.val)
+
+    def frobenius_map(self, power):
+        assert(self.frobenius_coeffs_c1 is not None)
+        assert(self.frobenius_coeffs_c2 is not None)
+        return self.__class__([self.val[0].frobenius_map(power),
+                               self.frobenius_coeffs_c1[power % 6] * self.val[1].frobenius_map(power),
+                               self.frobenius_coeffs_c2[power % 6] * self.val[2].frobenius_map(power)])

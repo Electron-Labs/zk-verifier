@@ -5,6 +5,7 @@ from field.fq6 import Fq6
 class Fq12:
     non_residue = None
     degree = 12
+    frobenius_coeffs_c1 = None
 
     def __init__(self, val):
         if not self.non_residue:
@@ -101,3 +102,10 @@ class Fq12:
             return (self * self) ** (other // 2)
         else:
             return ((self * self) ** int(other // 2)) * self
+
+    def frobenius_map(self, power):
+        assert(self.frobenius_coeffs_c1 is not None)
+        return self.__class__([
+            self.val[0].frobenius_map(power),
+            self.val[1].frobenius_map(power).mul_by_fq2(self.frobenius_coeffs_c1[power % 12]),
+        ])

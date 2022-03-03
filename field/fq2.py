@@ -3,6 +3,7 @@ from field.fq import Fq
 class Fq2:
     non_residue = None
     degree = 2
+    frobenius_coeffs_c1 = None
 
     def __init__(self, val):
         if not self.non_residue:
@@ -91,6 +92,13 @@ class Fq2:
 
     def __repr__(self):
         return repr(self.val)
+
+    def frobenius_map(self, power):
+        assert(self.frobenius_coeffs_c1 is not None)
+        return self.__class__([
+            self.val[0],
+            self.frobenius_coeffs_c1[power % 2] * self.val[1],
+        ])
 
     def mul_scalar(self, base):
         q = Fq2.zero()
