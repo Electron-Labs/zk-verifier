@@ -10,8 +10,9 @@ class G1:
         if len(self.val) == 2:
             self.val.append(Fq.one())
 
-    def zero(self):
-        return Fq2.zero()
+    @classmethod
+    def zero(cls):
+        return cls([Fq.zero(), Fq.one(), Fq.zero()])
 
     def is_zero(self):
         return self.val[2] == Fq.zero()
@@ -77,10 +78,13 @@ class G1:
         d = Fq(base)
         q = G1([0, 0, 0])
         r = self
+        found_one = False
 
-        for i in range(d.bit_length(), -1, -1):
-            q = q.double()
+        for i in range(d.bit_length() - 1, -1, -1):
+            if found_one:
+                q = q.double()
             if d.bit(i):
+                found_one = True
                 q += r
 
         return q
