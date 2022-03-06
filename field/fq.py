@@ -3,7 +3,6 @@ from field.utils import mod_inverse
 class Fq:
 
     field_modulus = None 
-    val = None
 
     def __init__(self, val):
         # Check if field_modulus is set or not
