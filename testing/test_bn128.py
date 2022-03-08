@@ -4,7 +4,7 @@ from bn128.g1 import G1
 from bn128.g2 import G2
 from field.fq12 import Fq12
 
-def test_bn128_pairing():
+def test_bn128():
     bn128 = BN128()
     a = 40
     b = 75
@@ -32,3 +32,36 @@ def test_bn128_pairing():
     one = Fq12.one()
 
     assert(one == res)
+
+
+def test_bn128_pairing():
+    bn128 = BN128()
+    a = 25
+    b = 30
+
+    g1a = bn128.g1.mul_scalar(a)
+    g2a = bn128.g2.mul_scalar(b)
+
+    g1b = bn128.g1.mul_scalar(b)
+    g2b = bn128.g2.mul_scalar(a)
+
+    pa = bn128.pairing_check(g1a, g2a)
+    pb = bn128.pairing_check(g1b, g2b)
+
+    assert(pa == pb)
+
+
+def test_bn128_pairing2():
+    bn128 = BN128()
+
+    gt = bn128.pairing_check(bn128.g1, bn128.g2)
+    gt6 = gt ** 6
+
+    # e(g1, g2)^6 == e(g1, 6*g2)
+    assert(gt6 == bn128.pairing_check(bn128.g1, bn128.g2.mul_scalar(6)))
+    # e(g1, g2)^6 == e(6*g1, g2)
+    assert(gt6 == bn128.pairing_check(bn128.g1.mul_scalar(6), bn128.g2))
+    # e(g1, g2)^6 == e(3*g1, 2*g2)
+    assert(gt6 == bn128.pairing_check(bn128.g1.mul_scalar(3), bn128.g2.mul_scalar(2)))
+    # e(g1, g2)^6 == e(2*g1, 3*g2)
+    assert(gt6 == bn128.pairing_check(bn128.g1.mul_scalar(2), bn128.g2.mul_scalar(3)))
