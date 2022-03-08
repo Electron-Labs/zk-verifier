@@ -196,3 +196,11 @@ class BN128:
                 ),
             ]
         )
+
+    def ate_precompute_g1(self, p):
+        print("Entering precompute G1")
+        assert(isinstance(p, G1))
+        pcopy = p.affine()
+        ate_g1_precomp = AteG1PreComp(pcopy.val[0], pcopy.val[1])
+        print("End with precompute G1")
+        return ate_g1_precomp
