@@ -3,6 +3,7 @@ from field.fq import Fq
 
 
 def test_fq_without_field_modulus():
+    Fq.field_modulus = None
     with pytest.raises(AttributeError):
         a = Fq.zero()
 
