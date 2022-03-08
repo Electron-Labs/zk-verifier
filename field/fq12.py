@@ -199,3 +199,72 @@ class Fq12:
                     res *= self_inv
 
         return res
+
+    def mul_by_024(self, ell0, ellvw, ellvv):
+        z0 = self.val[0].val[0]
+        z1 = self.val[0].val[1]
+        z2 = self.val[0].val[2]
+        z3 = self.val[1].val[0]
+        z4 = self.val[1].val[1]
+        z5 = self.val[1].val[2]
+
+        x0 = ell0
+        x2 = ellvv
+        x4 = ellvw
+
+        D0 = z0 * x0
+        D2 = z2 * x2
+        D4 = z4 * x4
+        t2 = z0 + z4
+        t1 = z0 + z2
+        s0 = z1 + z3 + z5
+
+        # For z.a_.a_ = z0.
+        S1 = z1 * x2
+        T3 = S1 + D4
+        T4 = Fq6.non_residue * T3 + D0
+        z0 = T4
+
+        # For z.a_.b_ = z1
+        T3 = z5 * x4
+        S1 = S1 + T3
+        T3 = T3 + D2
+        T4 = Fq6.non_residue * T3
+        T3 = z1 * x0
+        S1 = S1 + T3
+        T4 = T4 + T3
+        z1 = T4
+
+        # For z.a_.c_ = z2
+        t0 = x0 + x2
+        T3 = t1 * t0 - D0 - D2
+        T4 = z3 * x4
+        S1 = S1 + T4
+        T3 = T3 + T4
+
+        # For z.b_.a_ = z3 (z3 needs z2)
+        t0 = z2 + z4
+        z2 = T3
+        t1 = x2 + x4
+        T3 = t0 * t1 - D2 - D4
+        T4 = Fq6.non_residue * T3
+        T3 = z3 * x0
+        S1 = S1 + T3
+        T4 = T4 + T3
+        z3 = T4
+
+        # For z.b_.b_ = z4
+        T3 = z5 * x2
+        S1 = S1 + T3
+        T4 = Fq6.non_residue * T3
+        t0 = x0 + x4
+        T3 = t2 * t0 - D0 - D4
+        T4 = T4 + T3
+        z4 = T4
+
+        # For z.b_.c_ = z5.
+        t0 = x0 + x2 + x4
+        T3 = s0 * t0 - S1
+        z5 = T3
+
+        return self.__class__([Fq6([z0, z1, z2]), Fq6([z3, z4, z5])])
