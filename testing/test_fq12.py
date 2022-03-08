@@ -169,7 +169,7 @@ def test_fq12_frobenius_map():
     assert(c == res)
 
 
-def test_fq12_cyclomatic_squared():
+def test_fq12_cyclotomic_squared():
     Fq.field_modulus = 21888242871839275222246405745257275088696311157297823662689037894645226208583
     Fq2.non_residue = Fq(21888242871839275222246405745257275088696311157297823662689037894645226208582)
     Fq6.non_residue = Fq2([9, 1])
@@ -187,3 +187,16 @@ def test_fq12_cyclomatic_squared():
     res = Fq12([res_a, res_b])
 
     assert(d == res)
+
+
+def test_fq12_cyclotomic_exp():
+    Fq.field_modulus = 21888242871839275222246405745257275088696311157297823662689037894645226208583
+    Fq2.non_residue = Fq(21888242871839275222246405745257275088696311157297823662689037894645226208582)
+    Fq6.non_residue = Fq2([9, 1])
+    Fq12.non_residue = Fq2([9, 1])
+    a = Fq6([Fq2([1, 2]), Fq2([1, 2]), Fq2([1, 2])])
+    b = Fq6([Fq2([2, 2]), Fq2([5, 2]), Fq2([10, 2])])
+    c = Fq12([a, b])
+    d = c.cyclotomic_square()
+    e = c.cyclotomic_exp(2)
+    assert(d == e)

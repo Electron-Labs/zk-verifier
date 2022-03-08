@@ -1,6 +1,7 @@
 from field.fq import Fq
 from field.fq2 import Fq2
 from field.fq6 import Fq6
+from field.utils import find_naf
 
 class Fq12:
     non_residue = None
@@ -175,3 +176,26 @@ class Fq12:
         z5 = z5 + t3
 
         return self.__class__([Fq6([z0, z4, z3]), Fq6([z2, z1, z5])])
+
+    def unitary_inverse(self):
+        return self.__class__([self.val[0], -self.val[1]])
+
+    def cyclotomic_exp(self, power):
+        res = Fq12.one()
+        self_inv = self.unitary_inverse()
+        found_one = False
+        naf = find_naf(power)
+
+        for value in reversed(naf):
+            if found_one:
+                res = res.cyclotomic_square()
+
+            if value != 0:
+                found_one = True
+
+                if value > 0:
+                    res *= self
+                else:
+                    res *= self_inv
+
+        return res
