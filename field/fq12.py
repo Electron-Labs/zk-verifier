@@ -120,10 +120,10 @@ class Fq12:
 
     def cyclotomic_square(self):
         z0 = self.val[0].val[0]
-        z1 = self.val[0].val[1]
-        z2 = self.val[0].val[2]
-        z3 = self.val[1].val[0]
-        z4 = self.val[1].val[1]
+        z4 = self.val[0].val[1]
+        z3 = self.val[0].val[2]
+        z2 = self.val[1].val[0]
+        z1 = self.val[1].val[1]
         z5 = self.val[1].val[2]
 
         tmp = z0 * z1
