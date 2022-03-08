@@ -204,3 +204,116 @@ class BN128:
         ate_g1_precomp = AteG1PreComp(pcopy.val[0], pcopy.val[1])
         print("End with precompute G1")
         return ate_g1_precomp
+
+    def doubling_step_for_flipped_miller_loop(self, curr_g2):
+        x = curr_g2.val[0]
+        y = curr_g2.val[1]
+        z = curr_g2.val[2]
+
+        a = x * y
+        a = a.mul_scalar(self.two_inv)
+        b = y * y
+        c = z * z
+        d = c + c + c
+        e = self.twist_b * d
+        f = e + e + e
+        g = (b + f)
+        g = g.mul_scalar(self.two_inv)
+        h = ((y + z) * (y + z)) - (b + c)
+        i = e - b
+        j = x * x
+        e_sq = e * e
+
+        res_x = a * (b - f)
+        res_y = (g * g) - (e_sq + e_sq + e_sq)
+        res_z = b * h
+
+        ell0 = i * self.twist
+        ellvw = -h
+        ellvv = j + j + j
+
+        ate_ell_coeff = AteEllCoeffs(ell0, ellvw, ellvv)
+
+        return G2([res_x, res_y, res_z]), ate_ell_coeff
+
+    def mul_by_q(self, q):
+        assert(isinstance(q, G2))
+
+        fmx = self.twist_mul_by_x * q.val[0].frobenius_map(1)
+        fmy = self.twist_mul_by_y * q.val[1].frobenius_map(1)
+        fmz = q.val[2].frobenius_map(1)
+
+        return G2([fmx, fmy, fmz])
+
+    def mixed_addition_step_for_flipped_miller(self, base_g2, curr_g2):
+        x1 = curr_g2.val[0]
+        y1 = curr_g2.val[1]
+        z1 = curr_g2.val[2]
+        x2 = base_g2.val[0]
+        y2 = base_g2.val[1]
+
+        d = x1 - (x2 * z1)
+        e = y1 - (y2 * z1)
+        f = d * d
+        g = e * e
+        h = d * f
+        i = x1 * f
+        j = (h + (z1 * g)) - (i + i)
+
+        res_x = d * j
+        res_y = (e * (i - j)) - (h * y1)
+        res_z = z1 * h
+
+        ell0 = self.twist * ((e * x2) - (d * y2))
+        ellvv = -e
+        ellvw = d
+
+        ate_ell_coeff = AteEllCoeffs(ell0, ellvw, ellvv)
+
+        return G2([res_x, res_y, res_z]), ate_ell_coeff
+
+    def ate_precompute_g2(self, q):
+        print("Entering precompute G2")
+        assert(isinstance(q, G2))
+        qcopy = q.affine()
+        ate_g2_precomp = AteG2PreComp(qcopy.val[0], qcopy.val[1])
+
+        r = G2([qcopy.val[0], qcopy.val[1], Fq2.one()])
+
+        found_one = False
+
+        for i in range(self.ate_loop_count.bit_length(), -1, -1):
+            bit = self.ate_loop_count.bit(i)
+
+            if not found_one:
+                found_one |= bit
+                continue
+
+            r, c = self.doubling_step_for_flipped_miller_loop(r)
+            ate_g2_precomp.coeffs.append(c)
+
+            if bit:
+                r, c = self.mixed_addition_step_for_flipped_miller(qcopy, r)
+                found_one = True
+                ate_g2_precomp.coeffs.append(c)
+
+        q1 = self.mul_by_q(qcopy).affine()
+        assert(q1.val[2] == Fq2.one())
+
+        q2 = self.mul_by_q(q1).affine()
+        assert(q2.val[2] == Fq2.one())
+
+        if self.ate_is_loop_count_neg:
+            r.val[1] = -r.val[1]
+
+        q2.val[1] = -q2.val[1]
+
+        r, c = self.mixed_addition_step_for_flipped_miller(q1, r)
+        ate_g2_precomp.coeffs.append(c)
+
+        r, c = self.mixed_addition_step_for_flipped_miller(q2, r)
+        ate_g2_precomp.coeffs.append(c)
+
+        print("Done with precompute G2")
+
+        return ate_g2_precomp
