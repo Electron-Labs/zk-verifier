@@ -407,3 +407,15 @@ class BN128:
         result = self.final_exp_last_chunk(a)
 
         return result
+
+    def pairing_check(self, p, q):
+        assert(isinstance(p, G1) and isinstance(q, G2))
+        print("Starting pairing check")
+        precomp_g1 = self.ate_precompute_g1(p)
+        assert(isinstance(precomp_g1, AteG1PreComp))
+        precomp_g2 = self.ate_precompute_g2(q)
+        assert(isinstance(precomp_g2, AteG2PreComp))
+        result = self.ate_miller_loop(precomp_g1, precomp_g2)
+        result = self.final_exponentation(result)
+        print("Done with pairing check")
+        return result
