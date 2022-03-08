@@ -317,3 +317,39 @@ class BN128:
         print("Done with precompute G2")
 
         return ate_g2_precomp
+
+    def ate_miller_loop(self, p, q):
+        assert(isinstance(p, AteG1PreComp) and isinstance(q, AteG2PreComp))
+        f = Fq12.one()
+        found_one = False
+        idx = 0
+        c = q.coeffs[idx]
+
+        for i in range(self.ate_loop_count.bit_length(), -1, -1):
+            bit = self.ate_loop_count.bit(i)
+            if not found_one:
+                found_one |= bit
+                continue
+            c = q.coeffs[idx]
+            assert(isinstance(c, AteEllCoeffs))
+            idx += 1
+            f = f.square()
+            f = f.mul_by_024(c.ell0, c.ellvw.mul_scalar(p.py), c.ellvv.mul_scalar(p.px))
+
+            if bit:
+                c = q.coeffs[idx]
+                f = f.mul_by_024(c.ell0, c.ellvw.mul_scalar(p.py), c.ellvv.mul_scalar(p.px))
+                idx += 1
+
+        if self.ate_is_loop_count_neg:
+            f = f.inverse()
+
+        c = q.coeffs[idx]
+        idx += 1
+        f = f.mul_by_024(c.ell0, c.ellvw.mul_scalar(p.py), c.ellvv.mul_scalar(p.px))
+
+        c = q.coeffs[idx]
+        idx += 1
+        f = f.mul_by_024(c.ell0, c.ellvw.mul_scalar(p.py), c.ellvv.mul_scalar(p.px))
+
+        return f
