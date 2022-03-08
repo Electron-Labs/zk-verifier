@@ -353,3 +353,57 @@ class BN128:
         f = f.mul_by_024(c.ell0, c.ellvw.mul_scalar(p.py), c.ellvv.mul_scalar(p.px))
 
         return f
+
+    def final_exp_first_chunk(self, elt):
+        assert(isinstance(elt, Fq12))
+        a = elt.unitary_inverse()
+        b = elt.inverse()
+        c = a * b
+        d = c.frobenius_map(2)
+        result = d * c
+
+        return result
+
+    def final_exp_by_neg_z(self, elt):
+        assert(isinstance(elt, Fq12))
+        result = elt.cyclotomic_exp(self.final_exp_z)
+        if not self.final_exp_is_z_neg:
+            result = result.unitary_inverse()
+
+        return result
+
+    def final_exp_last_chunk(self, elt):
+        assert(isinstance(elt, Fq12))
+        a = self.final_exp_by_neg_z(elt)
+        b = a.cyclotomic_square()
+        c = b.cyclotomic_square()
+        d = c * b
+        e = self.final_exp_by_neg_z(d)
+        f = e.cyclotomic_square()
+        g = self.final_exp_by_neg_z(f)
+        h = d.unitary_inverse()
+        i = g.unitary_inverse()
+        j = i * e
+        k = j * h
+        l = k * b
+        m = k * e
+        n = m * elt
+        o = l.frobenius_map(1)
+        p = o * n
+        q = k.frobenius_map(2)
+        r = q * p
+        s = elt.unitary_inverse()
+        t = s * l
+        u = t.frobenius_map(3)
+        v = u * r
+
+        result = v
+
+        return result
+
+    def final_exponentation(self, elt):
+        assert(isinstance(elt, Fq12))
+        a = self.final_exp_first_chunk(elt)
+        result = self.final_exp_last_chunk(a)
+
+        return result
