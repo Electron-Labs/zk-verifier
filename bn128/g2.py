@@ -161,10 +161,13 @@ class G2:
         q = G2([Fq2.zero(), Fq2.zero(), Fq2.zero()])
         d = Fq(base)
         r = self
+        found_one = False
 
-        for i in range(d.bit_length(), -1, -1):
-            q = q.double()
+        for i in range(d.bit_length() - 1, -1, -1):
+            if found_one:
+                q = q.double()
             if d.bit(i):
+                found_one = True
                 q += r
     
         return q
