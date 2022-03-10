@@ -1,4 +1,3 @@
-from xmlrpc.server import resolve_dotted_attribute
 import pytest
 from field.fq import Fq
 from field.fq2 import Fq2
